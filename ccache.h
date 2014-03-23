@@ -15,7 +15,7 @@ typedef struct {
 
 typedef CCacheStruct *CCache;
 
-// Access the `values` CMap directly to set up a key- or value-releaser.
+// Access the CMap `map` directly to set up a key- or value-releaser.
 CCache CCacheNew(Hash hash, Eq eq, unsigned int max_count);
 void CCacheDelete(CCache cache);
 
