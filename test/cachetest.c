@@ -26,29 +26,19 @@ int test_cache() {
   CCache cache = CCacheNew(str_hash, str_eq, 4);
 
   // We'll set a->1, b->2, c->3, d->4.
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "a", (void *)1L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "b", (void *)2L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "c", (void *)3L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "d", (void *)4L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
 
   long value = (long)CCacheGet(cache, "a");
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   test_that(value == 1);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
 
   // Push the cache over the limit; the oldest value is now "b".
   CCacheSet(cache, "e", (void *)5L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   void *value_ptr = CCacheGet(cache, "b");
-  test_printf("%s:%d\n", __FILE__, __LINE__);
 
   test_that(value_ptr == NULL);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
 
   return test_success;
 }
@@ -64,15 +54,10 @@ int test_num_releases() {
   cache->map->valueReleaser = counting_releaser;
 
   // We'll set a->1, b->2, c->3, d->4.
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "a", (void *)1L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "b", (void *)2L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "c", (void *)3L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
   CCacheSet(cache, "d", (void *)4L);
-  test_printf("%s:%d\n", __FILE__, __LINE__);
 
   test_that(num_releases == 2);
 
