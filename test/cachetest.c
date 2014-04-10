@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 
+// This is defined in ccache.c, but not declared publicly
+// as it's only used for testing.
+extern int ccache_error_line;
+
 int str_hash(void *str_void_ptr) {
   char *str = (char *)str_void_ptr;
   int h = *str;
@@ -21,6 +25,15 @@ int str_hash(void *str_void_ptr) {
 int str_eq(void *str_void_ptr1, void *str_void_ptr2) {
   return !strcmp(str_void_ptr1, str_void_ptr2);
 }
+
+#define CCacheSet(cache, key, value) \
+  CCacheSet(cache, key, value); \
+  if (ccache_error_line) { \
+    test_failed("%s:%d ccached_error_line=%d\n", \
+        __FILE__, \
+        __LINE__, \
+        ccache_error_line); \
+  }
 
 int test_cache() {
   CCache cache = CCacheNew(str_hash, str_eq, 4);

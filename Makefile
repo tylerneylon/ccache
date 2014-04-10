@@ -12,7 +12,9 @@
 
 # Target lists.
 tests = out/cachetest
-obj = $(addprefix out/,CArray.o CList.o CMap.o memprofile.o ctest.o ccache.o)
+common_obj = $(addprefix out/,CArray.o CList.o CMap.o memprofile.o ctest.o)
+test_obj = $(common_obj) out/ccache_test.o
+obj = $(common_obj) out/ccache.o
 
 # Variables for build settings.
 includes = -Icstructs -I.
@@ -46,15 +48,18 @@ out:
 	mkdir -p out
 
 out/ctest.o: test/ctest.c test/ctest.h | out
-	$(cc) -o out/ctest.o -c test/ctest.c
+	$(cc) -o $@ -c test/ctest.c
 
 out/ccache.o: ccache.c ccache.h | out
-	$(cc) -o out/ccache.o -c ccache.c
+	$(cc) -o $@ -c ccache.c
+
+out/ccache_test.o: ccache.c ccache.h | out
+	$(cc) -o $@ -c ccache.c -D CCACHE_TESTING
 
 out/%.o : cstructs/%.c cstructs/%.h | out
 	$(cc) -o $@ -c $<
 
-$(tests) : out/% : test/%.c $(obj)
+$(tests) : out/% : test/%.c $(test_obj)
 	$(cc) -o $@ $^
 
 # Listing this special-name rule prevents the deletion of intermediate files.
