@@ -10,6 +10,8 @@ which uses `void *` for keys and values, and supports
 use of this space as either direct values (cast to a pointer),
 or as pointers to custom objects.
 
+## Example
+
 Below is a usage example using strings as
 keys and integers as values.
 
@@ -62,3 +64,48 @@ the keys (strings) will live on as long as needed in the cache,
 which may be a bad assumption. Using a `keyReleaser` and giving
 the cache ownership of the keys (such as using `strdup`) is one
 way to improve on this.
+
+## Internal layout
+
+These details may be useful for contributors; they're not
+necessary to know about to use the library.
+
+The primary structure is a `CMap` that has its key-value
+pairs augmented with a `CList *` called `age_item`.
+Conceptually, an `age_item` captures how long ago the
+key-value pair was last referred to; in the code, it
+provides a fast way for us to move an item to the newest
+side of the age list.
+
+We keep two pointers into the age list: `newest` and
+`oldest`. We use `oldest` to purge old items when incoming
+items would push us over `max_count`. We use `newest` to
+know where to insert new incoming items. The entire
+thing is a single `CList` ordered by age.
+
+Here's a sample data diagram with two key-value pairs:
+
+```
+                           +––––––––+             
+                           | newest |             
+                           +––––––––+             
+                              |                   
+             CListStruct      v                   
++––––––––+   +–––––––––+   +–––––––––+            
+| oldest |-> | next(1) |-> | next(2) |-|          
++––––––––+   +–––––––––+   +–––––––––+            
+    ^        | element |   | element |            
+    |        +–––––––––+   +–––––––––+            
+    |          |             |                    
+    |          v             v                    
+    |        +––––––––––+  +––––––––––+           
+    |        | key      |  | key      |           
+    |        +––––––––––+  +––––––––––+           
+    |        | value    |  | value    |           
+    |        +––––––––––+  +––––––––––+           
+    +––––––––+ age_item |  | age_item |->[next(1)]
+             +––––––––––+  +––––––––––+           
+             KeyValueAge                          
+```
+
+This chart was built with the [asciiflow](http://asciiflow.com/) tool.
