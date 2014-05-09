@@ -10,7 +10,7 @@ typedef struct {
   CMap map;
   CList newest;
   CList oldest;
-  unsigned int max_count;
+  int max_count;
 } CCacheStruct;
 
 typedef CCacheStruct *CCache;
