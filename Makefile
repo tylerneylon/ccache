@@ -12,7 +12,7 @@
 
 # Target lists.
 tests = out/cachetest
-common_obj = $(addprefix out/,CArray.o CList.o CMap.o memprofile.o ctest.o)
+common_obj = $(addprefix out/,array.o list.o map.o memprofile.o ctest.o)
 test_obj = $(common_obj) out/ccache_test.o
 obj = $(common_obj) out/ccache.o
 

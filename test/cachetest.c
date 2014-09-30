@@ -66,7 +66,7 @@ static void counting_releaser(void *ptr) {
 int test_num_releases() {
   num_releases = 0;
   CCache cache = CCacheNew(str_hash, str_eq, 2);
-  cache->map->valueReleaser = counting_releaser;
+  cache->map->value_releaser = counting_releaser;
 
   // We'll set a->1, b->2, c->3, d->4.
   CCacheSet(cache, "a", (void *)1L);

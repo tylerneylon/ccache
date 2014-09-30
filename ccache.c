@@ -6,7 +6,7 @@
 #include "ccache.h"
 
 
-#define true 1
+#define true  1
 #define false 0
 
 // The well-formed check is incredibly slow, so it is not even
@@ -25,7 +25,7 @@ int ccache_error_line = 0;
 typedef struct {
   void *key;
   void *value;
-  CList *age_item;
+  List *age_item;
 } KeyValueAge;
 
 
@@ -39,8 +39,8 @@ int fail(int line) {
 int CCacheIsWellFormed_(CCache cache, int line) {
     
   // Check that the oldest->newest list is well-formed.
-  CList *prev = &cache->oldest;
-  CListFor(KeyValueAge *, meta_item, cache->oldest) {
+  List *prev = &cache->oldest;
+  list__for(KeyValueAge *, meta_item, cache->oldest) {
     if (meta_item->age_item != prev) return fail(line);
     prev = &(*prev)->next;
   }
@@ -51,10 +51,10 @@ int CCacheIsWellFormed_(CCache cache, int line) {
     if (cache->oldest || cache->map->count) return fail(line);
   }
   
-  // Check that the CMap has well-formed KeyValueAge entries.
-  CMapFor(pair, cache->map) {
+  // Check that the map.has well-formed KeyValueAge entries.
+  map__for(pair, cache->map) {
     KeyValueAge *meta_item = (KeyValueAge *)pair;
-    if ((*meta_item->age_item)->element != meta_item) return fail(line);
+    if ((*meta_item->age_item)->item != meta_item) return fail(line);
   }
   
   return true;
@@ -62,27 +62,27 @@ int CCacheIsWellFormed_(CCache cache, int line) {
 
 static void CCacheMakeNewest(CCache cache, KeyValueAge *meta_item) {
   if (meta_item->age_item) {
-    CList next = (*meta_item->age_item)->next;
+    List next = (*meta_item->age_item)->next;
     if (next == NULL) return;  // Already newest.
-    ((KeyValueAge *)next->element)->age_item = meta_item->age_item;
-    CListMoveFirst(meta_item->age_item, &cache->newest->next);
+    ((KeyValueAge *)next->item)->age_item = meta_item->age_item;
+    list__move_first(meta_item->age_item, &cache->newest->next);
     meta_item->age_item = &cache->newest->next;
   } else {
     // It's a new item; insert at oldest iff it's the first-ever item.
     meta_item->age_item = cache->oldest ? &cache->newest->next : &cache->oldest;
-    CListInsert(meta_item->age_item, meta_item);
+    list__insert(meta_item->age_item, meta_item);
   }
   cache->newest = *(meta_item->age_item);
   CCacheIsWellFormed(cache);
 }
 
 static void CCacheRemoveOldest(CCache cache) {
-  KeyValueAge *meta_item = (KeyValueAge *)cache->oldest->element;
-  CListRemoveFirst(&cache->oldest);
+  KeyValueAge *meta_item = (KeyValueAge *)cache->oldest->item;
+  list__remove_first(&cache->oldest);
   // cache->oldest exists since max_count >= 1, and we wait till the
   // buffer is overfill by 1 (internally) before removing the oldest.
-  ((KeyValueAge *)cache->oldest->element)->age_item = &cache->oldest;
-  CMapUnset(cache->map, meta_item->key);
+  ((KeyValueAge *)cache->oldest->item)->age_item = &cache->oldest;
+  map__unset(cache->map, meta_item->key);
   CCacheIsWellFormed(cache);
 }
 
@@ -96,23 +96,23 @@ static void *alloc_meta_item(size_t base_size) {
 
 // Public functions.
 
-CCache CCacheNew(Hash hash, Eq eq, unsigned int max_count) {
+CCache CCacheNew(map__Hash hash, map__Eq eq, unsigned int max_count) {
   CCache cache = malloc(sizeof(CCacheStruct));
-  cache->map = CMapNew(hash, eq);
-  cache->map->pairAlloc = alloc_meta_item;
+  cache->map = map__new(hash, eq);
+  cache->map->pair_alloc = alloc_meta_item;
   cache->newest = cache->oldest = NULL;
   cache->max_count = max_count;
   return cache;
 }
 
 void CCacheDelete(CCache cache) {
-  CListDelete(&cache->oldest);
-  CMapDelete(cache->map);
+  list__delete(&cache->oldest);
+  map__delete(cache->map);
   free(cache);
 }
 
 void *CCacheGet(CCache cache, void *key) {
-  KeyValueAge *meta_item = (KeyValueAge *)CMapFind(cache->map, key);
+  KeyValueAge *meta_item = (KeyValueAge *)map__find(cache->map, key);
   if (meta_item == NULL) return NULL;
   CCacheMakeNewest(cache, meta_item);
   CCacheIsWellFormed(cache);
@@ -120,7 +120,7 @@ void *CCacheGet(CCache cache, void *key) {
 }
 
 void CCacheSet(CCache cache, void *key, void *value) {
-  KeyValueAge *meta_item = (KeyValueAge *)CMapSet(cache->map, key, value);
+  KeyValueAge *meta_item = (KeyValueAge *)map__set(cache->map, key, value);
   CCacheMakeNewest(cache, meta_item);
   if (cache->map->count > cache->max_count) CCacheRemoveOldest(cache);
   CCacheIsWellFormed(cache);
