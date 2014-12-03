@@ -4,6 +4,13 @@
 //
 // A minimalistic test framework.
 //
+// Warning: In some multithreaded test cases, this test
+// framework may print out both a success and a failure
+// message simultaneously on different threads. The
+// current way to deal with this is to visually inspect
+// the output for multithreaded tests to see if there
+// were any failure conditions.
+//
 
 #ifndef __CTEST_CTEST_H__
 #define __CTEST_CTEST_H__
@@ -66,6 +73,6 @@ void run_test_(TestFunction test_fn, char *new_test_name);
 void run_tests_(char *test_names, ...);
 int test_printf_(const char *format, ...);
 void test_that_(int cond, char *cond_str, char *filename, int line_number);
-void test_str_eq_(char *s1, char *s2, char *filename, int line_number);
+void test_str_eq_(const char *s1, const char *s2, char *filename, int line_number);
 
 #endif // __CTEST_CTEST_H__
