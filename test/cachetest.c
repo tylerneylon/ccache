@@ -59,7 +59,7 @@ int test_cache() {
 }
 
 static int num_releases = 0;
-static void counting_releaser(void *ptr) {
+static void counting_releaser(void *ptr, void *ctx) {
   num_releases++;
 }
 
