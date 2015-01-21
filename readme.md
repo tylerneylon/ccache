@@ -53,15 +53,22 @@ Note that storing direct values cast to `void *` makes it
 impossible to distinguish between a value of zero and a missing
 cache value. If you need to distinguish between the two, you
 can dynamically allocate the values you need and store pointers
-to them. You can set a value releaser function like so:
+to them. You can define a releaser with the following type
+layout:
 
-    cache->map->valueReleaser = free;
+    void my_releaser(void *item, void *context) {
+      /* release `item` here; `context` will always be NULL */
+    }
+
+You can set a value releaser function like so:
+
+    cache->map->value_releaser = my_releaser;
 
 and `cache` will call this releaser for every value that is
 purged when the cache is full; there is an analogous
-`keyReleaser` function as well. The example above assumes
+`key_releaser` function as well. The example above assumes
 the keys (strings) will live on as long as needed in the cache,
-which may be a bad assumption. Using a `keyReleaser` and giving
+which may be a bad assumption. Using a `key_releaser` and giving
 the cache ownership of the keys (such as using `strdup`) is one
 way to improve on this.
 
