@@ -112,7 +112,7 @@ void CCacheDelete(CCache cache) {
 }
 
 void *CCacheGet(CCache cache, void *key) {
-  KeyValueAge *meta_item = (KeyValueAge *)map__find(cache->map, key);
+  KeyValueAge *meta_item = (KeyValueAge *)map__get(cache->map, key);
   if (meta_item == NULL) return NULL;
   CCacheMakeNewest(cache, meta_item);
   CCacheIsWellFormed(cache);
