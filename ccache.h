@@ -6,6 +6,8 @@
 // Built on top of cstructs.
 //
 
+#pragma once
+
 #include "cstructs/cstructs.h"
 
 typedef struct {
