@@ -3,7 +3,7 @@
 // Home repo: https://github.com/tylerneylon/ccache
 //
 
-#include "ccache.h"
+#include "ccache/ccache.h"
 
 #include "ctest.h"
 

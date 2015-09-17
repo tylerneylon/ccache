@@ -50,11 +50,11 @@ out:
 out/ctest.o: test/ctest.c test/ctest.h | out
 	$(cc) -o $@ -c test/ctest.c
 
-out/ccache.o: ccache.c ccache.h | out
-	$(cc) -o $@ -c ccache.c
+out/ccache.o: ccache/ccache.c ccache/ccache.h | out
+	$(cc) -o $@ -c $<
 
-out/ccache_test.o: ccache.c ccache.h | out
-	$(cc) -o $@ -c ccache.c -D CCACHE_TESTING
+out/ccache_test.o: ccache/ccache.c ccache/ccache.h | out
+	$(cc) -o $@ -c $< -D CCACHE_TESTING
 
 out/%.o : cstructs/%.c cstructs/%.h | out
 	$(cc) -o $@ -c $<
